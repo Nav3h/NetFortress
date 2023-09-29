@@ -7,6 +7,9 @@ import random
 from colorama import Fore, Style
 from colorama import Fore
 import winsound
+from collections import defaultdict, deque
+from datetime import datetime
+import logging
 # ------ Monitoring Code ---------
 GREEN = Fore.GREEN
 RED = Fore.LIGHTRED_EX
@@ -15,13 +18,33 @@ port_scan_tracker = defaultdict(set)
 SYN_COUNTER = defaultdict(lambda: {"count": 0, "last_seen": 0})
 TIME_WINDOW = 10  # 10 seconds
 THRESHOLD = 50  
+SNIFFING_INTERFACE = "Ethernet"
+BRUTE_FORCE_THRESHOLD = 10
+SYN_THRESHOLD = 100
+DATA_EXFIL_THRESHOLD = 7000
+PING_SWEEP_THRESHOLD = 10
+SYN_THRESHOLD = 75
+PORT_SCAN_THRESHOLD = 15
+monitor_thread_started = threading.Event()
 icmp_tracker = defaultdict(lambda: {"count": 0, "last_seen": 0})
 brute_force_tracker = defaultdict(lambda: {"count": 0, "last_seen": 0})
+# Using deque to efficiently handle cleanup
+tracker_times = defaultdict(deque)
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+def print_with_timestamp(msg, color=None):
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    if color:
+        print(f"{color}[{current_time}] {msg}{RESET}")
+    else:
+        print(f"[{current_time}] {msg}")
 
 def cleanup_tracker(tracker):
     current_time = time.time()
-    for key, value in list(tracker.items()):
-        if current_time - value["last_seen"] > TIME_WINDOW:
+    for key, times in tracker_times.items():
+        while times and current_time - times[0] > TIME_WINDOW:
+            times.popleft()
+            tracker[key]['count'] -= 1
+        if not times:
             del tracker[key]
 
 # ... [All the detect_XXX functions and store_relevant_packet here] ...
@@ -29,22 +52,13 @@ def detect_brute_force(packet):
     dst = packet.get('dst')
     dport = packet.get('dport')
 
-    if dport is None:
-        return
-    if not dst:
+    if dport is None or not dst:
         return
     
-    if dport in [22, 21]:  # SSH or FTP as examples
-        if dst not in brute_force_tracker:
-            brute_force_tracker[dst] = {'count': 0, 'last_seen': time.time()}
-        
-        brute_force_tracker[dst]['count'] += 1
-        brute_force_tracker[dst]['last_seen'] = time.time()
-
-        if brute_force_tracker[dst]['count'] > 5:  # decrease threshold
-           print(f"{RED}Suspicious brute force activity on {dst}:{dport}{RESET}")
-           winsound.Beep(1000, 1000)
-           del brute_force_tracker[dst]  # reset
+    if brute_force_tracker[dst]['count'] > BRUTE_FORCE_THRESHOLD:
+        print(f"{RED}Suspicious brute force activity on {dst}:{dport}{RESET}")
+        winsound.Beep(1000, 1000)
+        del brute_force_tracker[dst]
 
     cleanup_tracker(brute_force_tracker)
 
@@ -140,6 +154,12 @@ def store_relevant_packet(packet):
             "flags": packet["IP"].flags,
             "id": packet["IP"].id
         })
+    elif packet.haslayer("IPv6"):
+        # If it's an IPv6 packet, just grab source and destination for now
+        packet_data.update({
+            "src": packet["IPv6"].src,
+            "dst": packet["IPv6"].dst
+        })
 
     if packet.haslayer("TCP"):
         packet_data.update({
@@ -188,49 +208,59 @@ def process_packet(packet):
 # ------ Simulation Code ---------
 
 def simulate_ping_sweep(target_ip_prefix):
-    for i in range(1, 101):  # Range from 1 to 100
+    # Reducing the number of IPs pinged to 10 for faster simulation
+    for i in range(1, 11):  
         ip = f"{target_ip_prefix}.{i}"
         packet = IP(dst=ip)/ICMP()
         send(packet, verbose=0)
-    print("Ping sweep simulation completed.")
+    print("[{}] Ping sweep simulation completed.".format(time.ctime()))
 
 def simulate_port_scan(target_ip):
-    ports = random.sample(range(1, 5000), 100)  # 100 ports from 1 to 5000
+    # Reducing the number of ports scanned to 3 for faster simulation
+    ports = [22, 80, 443] 
     for port in ports:
         packet = IP(dst=target_ip)/TCP(dport=port, flags="S")
         send(packet, verbose=0)
-    print(f"Port scan simulation completed on {target_ip}.")
+    print(f"[{time.ctime()}] Port scan simulation completed on {target_ip}.")
 
 def simulate_syn_flood(target_ip, target_port):
-    for i in range(500):  # Sending 500 SYN packets
+    # Increasing the number of SYN packets sent at once to 500 for a more intense simulation
+    for i in range(500):  
         packet = IP(dst=target_ip)/TCP(dport=target_port, flags="S")
-        send(packet, verbose=2)
-        time.sleep(0.01)  # 10 ms delay
-    print(f"SYN flood simulation completed on {target_ip}.")
+        send(packet, verbose=0)
+    print(f"[{time.ctime()}] SYN flood simulation completed on {target_ip}:{target_port}.")
 
 def simulate_suspicious_activity():
-    time.sleep(5)  # Sleep for 5 seconds to give the monitor time to start
     TARGET_IP_PREFIX = "192.168.1"  # Example IP prefix for ping sweep
     MY_IP = "192.168.1.22"  # Your machine's IP address
 
     simulate_ping_sweep(TARGET_IP_PREFIX)
-    simulate_port_scan(MY_IP)  # Adjusted to your IP
-    simulate_syn_flood(MY_IP, 22)  # Adjusted to your IP
-
+    simulate_port_scan(MY_IP)
+    simulate_syn_flood(MY_IP, 22)
 # ------ Main Execution ---------
 def network_monitor():
     print("Monitoring network traffic...")
-    sniff(iface="Ethernet", prn=process_packet)
+    monitor_thread_started.set()  # Indicate that the monitor has started
+    sniff(iface=SNIFFING_INTERFACE, filter="ip", prn=process_packet) # filter set to "ip" will focus on IPv4 packets.
     
+def wait_for_monitor_to_start():
+    while not monitor_thread_started:
+        time.sleep(0.1)
+
 if __name__ == "__main__":
+    
     monitor_thread = threading.Thread(target=network_monitor)
     simulator_thread = threading.Thread(target=simulate_suspicious_activity)
 
     monitor_thread.start()
+    monitor_thread_started.wait()  # This will block until the monitor_thread_started event is set
     simulator_thread.start()
 
     monitor_thread.join()
     simulator_thread.join()
+
+
+
 
 
 
