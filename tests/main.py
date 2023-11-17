@@ -16,8 +16,6 @@ from simulations.network_simulator import simulate_suspicious_activity
 GREEN = Fore.GREEN
 conf.logLevel = logging.ERROR
 
-#$env:PYTHONPATH = "C:\"
-#python tests\main.py
 
 def network_monitor(detectors, interface="\\Device\\NPF_Loopback"):  #currently on loopback for the testing. change interface accordingly as needed for scanning.
     print("Monitoring network traffic started",GREEN)
