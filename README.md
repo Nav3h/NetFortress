@@ -16,6 +16,10 @@ ensuring your network security.
 - **Flexible Alerting:** Provides customizable alerts and notifications to keep you informed.
 - **Extensible Architecture:** Easily extend and customize detection methods to adapt to evolving threats.
 
+## Current Status
+🚧 Under development.
+
+
 ## Table of Contents
 
 - [Installation](#installation)
