@@ -1,6 +1,6 @@
 # NetFortress🛡️ | Intrusion Detection System (IDS)🛡️
 
-![License](https://img.shields.io/github/license/Nav3h/NetFortress)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)
 ![Maintenance](https://img.shields.io/maintenance/yes/2023)
 
