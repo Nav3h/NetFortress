@@ -6,8 +6,8 @@
 
 ## Overview
 
-The Intrusion Detection System (IDS) is an advanced network security solution designed to safeguard your network infrastructure from unauthorized access, suspicious/malicios activities, and potential security threats. Powered by Python robust libraries and suspicious network activity detection algorithms, this system offers real-time monitoring, intelligent threat detection and customizable alerts.
-ensuring your network security
+NetFortress is an Intrusion Detection System (IDS), advanced network security solution designed to safeguard your network infrastructure from unauthorized access, suspicious/malicious activities and potential security threats. Powered by Python robust libraries and suspicious network activity detection algorithms, this system offers real-time monitoring, intelligent threat detection and customizable alerts.
+ensuring your network security.
 
 ## Features
 
