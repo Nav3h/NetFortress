@@ -6,6 +6,10 @@ venv/
 env/
 *.env
 
+*.vs
+.vs
+.vs/
+
 .vscode/
 .idea/
 *.sln
