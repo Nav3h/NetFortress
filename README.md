@@ -1,5 +1,9 @@
 # NetFortress🛡️ | Intrusion Detection System (IDS)🛡️
 
+![License](https://img.shields.io/github/license/Nav3h/NetFortress)
+![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)
+![Maintenance](https://img.shields.io/maintenance/yes/2023)
+
 ## Overview
 
 The Intrusion Detection System (IDS) is a sophisticated network security solution designed to protect your network infrastructure against unauthorized access, suspicious activities, and potential security threats. Leveraging Python and a range of robust libraries, this system offers real-time monitoring, intelligent threat detection, and customizable alerts to enhance your network's security posture.
