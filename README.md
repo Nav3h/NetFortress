@@ -1,12 +1,13 @@
-# NetFortress | Intrusion Detection System (IDS)
+# NetFortress🛡️ | Intrusion Detection System (IDS)🛡️
 
-![License](https://img.shields.io/github/license/Nav3h/NetFortress)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)
 ![Maintenance](https://img.shields.io/maintenance/yes/2023)
 
 ## Overview
 
-The Intrusion Detection System (IDS) is a sophisticated network security solution designed to protect your network infrastructure against unauthorized access, suspicious activities, and potential security threats. Leveraging Python and a range of robust libraries, this system offers real-time monitoring, intelligent threat detection, and customizable alerts to enhance your network's security posture.
+NetFortress is an Intrusion Detection System (IDS), advanced network security solution designed to safeguard your network infrastructure from unauthorized access, suspicious/malicious activities and potential security threats. Powered by Python robust libraries and suspicious network activity detection algorithms, this system offers real-time monitoring, intelligent threat detection and customizable alerts.
+ensuring your network security.
 
 ## Features
 
@@ -14,6 +15,10 @@ The Intrusion Detection System (IDS) is a sophisticated network security solutio
 - **Advanced Threat Detection:** Identifies common attack patterns, including SYN floods, port scanning, ping sweeping, bruteforce and data exfiltration.
 - **Flexible Alerting:** Provides customizable alerts and notifications to keep you informed.
 - **Extensible Architecture:** Easily extend and customize detection methods to adapt to evolving threats.
+
+## Current Status
+🚧 Under development.
+
 
 ## Table of Contents
 
@@ -46,10 +51,6 @@ To deploy the IDS on your system, follow these installation steps:
     ```bash
     pip install -r requirements.txt
     ```
-
-4. **Configuration:**
-
-    Configure the system settings and detection rules by modifying the `config.ini` file.
 
 5. **Run the IDS:**
 
