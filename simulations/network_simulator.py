@@ -30,7 +30,7 @@ def simulate_syn_flood(target_ip, target_port):
         send(packet, verbose=True)
     print(f"[{time.ctime()}] SYN flood simulation completed on {target_ip}:{target_port}.")
 
-def simulate_brute_force(target_ip, target_port, num_attempts=100):
+def simulate_brute_force(target_ip, target_port, num_attempts=5000):
     """Simulates a brute force attack."""
     for i in range(num_attempts):
         password = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=8))

@@ -2,8 +2,9 @@
 Module for detecting data exfiltration attempts in network traffic.
 """
 from IDS.utils.common_utils import print_with_timestamp, RED
+from IDS.detectors.attack_detector import AttackDetector
 
-class DataExfilDetector:
+class DataExfilDetector(AttackDetector):
     """
     A class for detecting data exfiltration attempts.
     """

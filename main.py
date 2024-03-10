@@ -11,6 +11,7 @@ from IDS.detectors.ping_sweep_detector import PingSweepDetector
 from IDS.detectors.brute_force_detector import BruteForceDetector
 from IDS.detectors.port_scan_detector import PortScanDetector
 from IDS.detectors.data_exfiltration import DataExfilDetector
+from IDS.detectors.detector_factory import DetectorFactory
 from IDS.utils.packet_processor import process_packet
 from simulations.network_simulator import simulate_suspicious_activity
 GREEN = Fore.GREEN
@@ -24,12 +25,11 @@ def network_monitor(detectors, interface="\\Device\\NPF_Loopback"):  #currently 
     sniff(iface=interface, filter="ip", prn=lambda x: process_packet(x, detectors))
 
 if __name__ == "__main__":
-    syn_flood_detector = SynFloodDetector(threshold=15)
-    ping_sweep_detector = PingSweepDetector(threshold=10)
-    brute_force_detector = BruteForceDetector(threshold=1000)
-    port_scan_detector = PortScanDetector(threshold=11)
-    data_exfil_detector = DataExfilDetector(threshold=5000)
-
+    syn_flood_detector = DetectorFactory.create_detector("syn_flood", 15)
+    ping_sweep_detector = DetectorFactory.create_detector("ping_sweep", 10)
+    brute_force_detector = DetectorFactory.create_detector("brute_force", 1000)
+    port_scan_detector = DetectorFactory.create_detector("port_scan", 11)
+    data_exfil_detector = DetectorFactory.create_detector("data_exfil", 5000)
     detectors = {
         "syn_flood": syn_flood_detector,
         "ping_sweep": ping_sweep_detector,

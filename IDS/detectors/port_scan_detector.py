@@ -5,10 +5,11 @@ from collections import deque
 from collections import defaultdict
 import time
 from IDS.utils.common_utils import print_with_timestamp, cleanup_tracker, RED
+from IDS.detectors.attack_detector import AttackDetector
 
 TIME_WINDOW = 10
 
-class PortScanDetector:
+class PortScanDetector(AttackDetector):
     """
     A class for detecting port scanning activities.
     """

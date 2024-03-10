@@ -12,6 +12,7 @@ env/
 
 .vscode/
 .idea/
+.__pycache__/
 *.sln
 *.sqlite
 *.user

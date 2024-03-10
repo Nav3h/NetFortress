@@ -4,8 +4,9 @@ Module for detecting SYN flood attacks in network traffic.
 from collections import defaultdict
 import time
 from IDS.utils.common_utils import print_with_timestamp, cleanup_tracker, RED
+from IDS.detectors.attack_detector import AttackDetector
 
-class SynFloodDetector:
+class SynFloodDetector(AttackDetector):
     """
     A class for detecting SYN flood attacks.
     """
