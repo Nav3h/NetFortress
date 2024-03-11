@@ -63,11 +63,11 @@ def process_packet(packet, detectors):
     packet_data = store_relevant_packet(packet)
 
     if "src" in packet_data and "dst" in packet_data:  # IP Packet
-        detectors['port_scan'].detect(packet_data)
         detectors['data_exfil'].detect(packet_data)
         detectors['brute_force'].detect(packet_data)
         
         if "sport" in packet_data and "dport" in packet_data:  # TCP or UDP Packet
+            detectors['port_scan'].detect(packet_data)
             detectors['syn_flood'].detect(packet_data)
 
     elif "type" in packet_data:  # ICMP Packet
