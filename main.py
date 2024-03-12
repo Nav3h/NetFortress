@@ -23,11 +23,11 @@ def network_monitor(detectors, interface="\\Device\\NPF_Loopback"):  #currently 
     sniff(iface=interface, filter="ip", prn=lambda x: process_packet(x, detectors))
 
 if __name__ == "__main__":
-    syn_flood_detector = DetectorFactory.create_detector("syn_flood", 15)
-    ping_sweep_detector = DetectorFactory.create_detector("ping_sweep", 10)
-    brute_force_detector = DetectorFactory.create_detector("brute_force", 1000)
-    port_scan_detector = DetectorFactory.create_detector("port_scan", 11)
-    data_exfil_detector = DetectorFactory.create_detector("data_exfil", 5000)
+    syn_flood_detector = DetectorFactory.create_detector("syn_flood", 500)
+    ping_sweep_detector = DetectorFactory.create_detector("ping_sweep", 10000)
+    brute_force_detector = DetectorFactory.create_detector("brute_force", 5000)
+    port_scan_detector = DetectorFactory.create_detector("port_scan", 300)
+    data_exfil_detector = DetectorFactory.create_detector("data_exfil", 10)
     detectors = {
         "syn_flood": syn_flood_detector,
         "ping_sweep": ping_sweep_detector,
