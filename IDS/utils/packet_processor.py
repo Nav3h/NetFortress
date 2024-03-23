@@ -63,7 +63,6 @@ def process_packet(packet, detectors):
     packet_data = store_relevant_packet(packet)
 
     if "src" in packet_data and "dst" in packet_data:  # IP Packet
-        detectors['data_exfil'].detect(packet_data)
         detectors['brute_force'].detect(packet_data)
         
         if "sport" in packet_data and "dport" in packet_data:  # TCP or UDP Packet

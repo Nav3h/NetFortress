@@ -4,7 +4,6 @@ from IDS.detectors.syn_flood_detector import SynFloodDetector
 from IDS.detectors.ping_sweep_detector import PingSweepDetector
 from IDS.detectors.brute_force_detector import BruteForceDetector
 from IDS.detectors.port_scan_detector import PortScanDetector
-from IDS.detectors.data_exfiltration import DataExfilDetector
 
 class DetectorFactory:
     @staticmethod
@@ -17,7 +16,5 @@ class DetectorFactory:
             return BruteForceDetector(threshold)
         elif detector_type == "port_scan":
             return PortScanDetector(threshold)
-        elif detector_type == "data_exfil":
-            return DataExfilDetector(threshold)
         else:
             raise ValueError(f"Unknown detector type: {detector_type}")

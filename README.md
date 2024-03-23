@@ -12,7 +12,7 @@ ensuring your network security.
 ## Features
 
 - **Real-time Network Monitoring:** Continuously monitors network traffic for suspicious behavior.
-- **Advanced Threat Detection:** Identifies common attack patterns, including SYN floods, port scanning, ping sweeping, bruteforce and data exfiltration.
+- **Advanced Threat Detection:** Identifies common attack patterns, including SYN floods, port scanning, ping sweeping and bruteforce.
 - **Flexible Alerting:** Provides customizable alerts and notifications to keep you informed.
 - **Extensible Architecture:** Easily extend and customize detection methods to adapt to evolving threats.
 

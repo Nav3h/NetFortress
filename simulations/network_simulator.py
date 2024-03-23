@@ -38,13 +38,6 @@ def simulate_brute_force(target_ip, target_port, num_attempts=5000):
         send(packet, verbose=True)
     print(f"[{time.ctime()}] Brute force simulation completed on {target_ip}:{target_port}.")
 
-def simulate_data_exfiltration(target_ip, size=1000):
-    """Simulates data exfiltration."""
-    payload = 'A' * size  
-    packet = IP(dst=target_ip)/TCP(dport=80)/payload
-    send(packet, verbose=True)
-    print(f"[{time.ctime()}] Data exfiltration simulation completed to {target_ip}.")
-
 def simulate_suspicious_activity():
     """Simulates various types of network attacks."""
     target_ip_prefix = "192.168.1"
@@ -55,7 +48,6 @@ def simulate_suspicious_activity():
     simulate_port_scan(my_ip)
     simulate_syn_flood(my_ip, target_port)
     simulate_brute_force(my_ip, target_port)
-    simulate_data_exfiltration(my_ip)
 
 if __name__ == "__main__":
     simulate_suspicious_activity()
