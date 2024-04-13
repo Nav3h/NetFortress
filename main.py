@@ -17,8 +17,12 @@ GREEN = Fore.GREEN
 
 def network_monitor(detectors, interface="\\Device\\NPF_Loopback"):  #currently on loopback for the testing. change interface accordingly as needed for scanning.
     print("Monitoring network traffic started",GREEN)
-    sniff(iface=interface, filter="ip", prn=lambda x: process_packet(x, detectors))
- 
+    try:
+        sniff(iface=interface, filter="ip", prn=lambda x: process_packet(x, detectors))
+    except Exception as e:
+        logging.error("[!] Error during packet sniffing: {e}")
+    finally:
+        logging.info("[-] Stopping the network sniffing proccess") 
             
 
 if __name__ == "__main__":
