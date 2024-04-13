@@ -18,6 +18,8 @@ GREEN = Fore.GREEN
 def network_monitor(detectors, interface="\\Device\\NPF_Loopback"):  #currently on loopback for the testing. change interface accordingly as needed for scanning.
     print("Monitoring network traffic started",GREEN)
     sniff(iface=interface, filter="ip", prn=lambda x: process_packet(x, detectors))
+ 
+            
 
 if __name__ == "__main__":
     syn_flood_detector = DetectorFactory.create_detector("syn_flood", 200)
