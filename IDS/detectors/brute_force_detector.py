@@ -38,6 +38,9 @@ class BruteForceDetector(AttackDetector):
             self.brute_force_tracker[ip_port_key]['times'].popleft()
             self.brute_force_tracker[ip_port_key]['count'] -= 1
 
+        if self.brute_force_tracker[ip_port_key]['count'] > 50:
+            print(f"[DEBUG] High brute force count for {dst_ip}:{dst_port}: {self.brute_force_tracker[ip_port_key]['count']}")
+
         if self.brute_force_tracker[ip_port_key]['count'] > self.threshold:
             print(f"[ALERT] Brute force detected on {dst_ip}:{dst_port}")
 

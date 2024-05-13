@@ -14,6 +14,7 @@ from IDS.detectors.detector_factory import DetectorFactory
 from IDS.utils.packet_processor import process_packet
 from simulations.network_simulator import simulate_suspicious_activity
 GREEN = Fore.GREEN
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
 def network_monitor(detectors, interface="\\Device\\NPF_Loopback"):  #currently on loopback for the testing. change interface accordingly as needed for scanning.
     print("Monitoring network traffic started",GREEN)
@@ -26,10 +27,13 @@ def network_monitor(detectors, interface="\\Device\\NPF_Loopback"):  #currently 
             
 
 if __name__ == "__main__":
-    syn_flood_detector = DetectorFactory.create_detector("syn_flood", 200)
-    ping_sweep_detector = DetectorFactory.create_detector("ping_sweep", 500)
-    brute_force_detector = DetectorFactory.create_detector("brute_force", 5000)
-    port_scan_detector = DetectorFactory.create_detector("port_scan", 300)
+    print("[DEBUG] Starting system initialization")
+    syn_flood_detector = DetectorFactory.create_detector("syn_flood", 100)
+    ping_sweep_detector = DetectorFactory.create_detector("ping_sweep", 100)
+    brute_force_detector = DetectorFactory.create_detector("brute_force", 2000)
+    port_scan_detector = DetectorFactory.create_detector("port_scan", 1000)
+
+    print("[DEBUG] Detectors initialized")
     detectors = {
         "syn_flood": syn_flood_detector,
         "ping_sweep": ping_sweep_detector,
@@ -37,12 +41,17 @@ if __name__ == "__main__":
         "port_scan": port_scan_detector
     }
 
+    
+
     monitor_thread = threading.Thread(target=network_monitor, args=(detectors,))
     simulator_thread = threading.Thread(target=simulate_suspicious_activity) 
+
+    print("[DEBUG] Threads started")
 
     monitor_thread.start()
     simulator_thread.start()
 
     monitor_thread.join()
     simulator_thread.join()
+    print("[DEBUG] System shutdown")
 

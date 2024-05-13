@@ -12,7 +12,7 @@ def simulate_ping_sweep(target_ip_prefix):
     for i in range(0, 255):  
         ip = f"{target_ip_prefix}.{i}"
         packet = IP(dst=ip)/ICMP()
-        send(packet, verbose=True)
+        send(packet, verbose=False)
     print(f"[{time.ctime()}] Ping sweep simulation completed.")
 
 def simulate_port_scan(target_ip):
@@ -20,14 +20,14 @@ def simulate_port_scan(target_ip):
     ports = range(1, 65535)
     for port in ports:
         packet = IP(dst=target_ip)/TCP(dport=port, flags="S")
-        send(packet, verbose=True)
+        send(packet, verbose=False)
     print(f"[{time.ctime()}] Port scan simulation completed on {target_ip}.")
 
 def simulate_syn_flood(target_ip, target_port):
     """Simulates a SYN flood attack."""
     for i in range(4000):  
         packet = IP(dst=target_ip)/TCP(dport=target_port, flags="S")
-        send(packet, verbose=True)
+        send(packet, verbose=False)
     print(f"[{time.ctime()}] SYN flood simulation completed on {target_ip}:{target_port}.")
 
 def simulate_brute_force(target_ip, target_port, num_attempts=10000):
@@ -35,7 +35,7 @@ def simulate_brute_force(target_ip, target_port, num_attempts=10000):
     for i in range(num_attempts):
         password = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=8))
         packet = IP(dst=target_ip)/TCP(dport=target_port)/password
-        send(packet, verbose=True)
+        send(packet, verbose=False)
     print(f"[{time.ctime()}] Brute force simulation completed on {target_ip}:{target_port}.")
 
 def simulate_suspicious_activity():

@@ -62,6 +62,9 @@ def process_packet(packet, detectors):
     """
     packet_data = store_relevant_packet(packet)
 
+    if packet_data.get('src') == '127.0.0.1' or packet_data.get('dst') == '127.0.0.1':
+        return
+
     if "src" in packet_data and "dst" in packet_data:  # IP Packet
         detectors['brute_force'].detect(packet_data)
         

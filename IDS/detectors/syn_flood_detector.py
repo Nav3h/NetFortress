@@ -23,9 +23,10 @@ class SynFloodDetector(AttackDetector):
             
             self.syn_counter[src_ip]['count'] += 1
             self.syn_counter[src_ip]['last_seen'] = time.time()
-
-            print_with_timestamp(f"[DEBUG] SYN Count from {src_ip}: {self.syn_counter[src_ip]['count']}")
-
+            
+            if self.syn_counter[src_ip]['count'] > 50:
+                print(f"[DEBUG] High SYN count for {src_ip}: {self.syn_counter[src_ip]['count']}")
+                
             if self.syn_counter[src_ip]['count'] > self.threshold:
                 print_with_timestamp(f"Potential SYN flood attack detected from {src_ip}!", RED)
                 del self.syn_counter[src_ip]  # reset

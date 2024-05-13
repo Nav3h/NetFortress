@@ -7,7 +7,6 @@ import time
 from IDS.utils.common_utils import print_with_timestamp, cleanup_tracker, RED
 from IDS.detectors.attack_detector import AttackDetector
 
-TIME_WINDOW = 10
 
 class PortScanDetector(AttackDetector):
     """
@@ -35,18 +34,12 @@ class PortScanDetector(AttackDetector):
         self.port_scan_tracker[src]['last_seen'] = time.time()
         self.port_scan_tracker[src]['times'].append(time.time())
 
+        if len(self.port_scan_tracker[src]['ports']) > 50:
+            print(f"[DEBUG] High port scan activity detected from {src}: {len(self.port_scan_tracker[src]['ports'])}")
+
+
         if len(self.port_scan_tracker[src]['ports']) > self.threshold:
             print_with_timestamp(f"Suspicious port scanning activity detected from {src}", RED)
             del self.port_scan_tracker[src]  
 
         cleanup_tracker(self.port_scan_tracker, 60)
-
-    def cleanup_tracker(self, src):
-        current_time = time.time()
-        times = self.port_scan_tracker[src]['times']
-
-        while times and current_time - times[0] > TIME_WINDOW:
-            times.popleft()
-        
-        if not times:
-            del self.port_scan_tracker[src]
