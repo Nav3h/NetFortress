@@ -1,34 +1,31 @@
 """
 Module for detecting SYN flood attacks in network traffic.
 """
-from collections import defaultdict
 import time
 from IDS.utils.common_utils import print_with_timestamp, cleanup_tracker, RED
 from IDS.detectors.attack_detector import AttackDetector
+from collections import deque, defaultdict
 
 class SynFloodDetector(AttackDetector):
-    """
-    A class for detecting SYN flood attacks.
-    """
-    def __init__(self, threshold):
-        self.threshold = threshold
-        self.syn_counter = defaultdict(lambda: {"count": 0, "last_seen": 0})
+    def __init__(self, threshold=100):  # Adding default threshold
+        super().__init__(threshold)
+        self.syn_counter = defaultdict(lambda: {'count': 0, 'times': deque()})
 
     def detect(self, packet_data):
-        """Detect potential SYN flood attacks in the given packet data."""
-        if 'flags' in packet_data and 'S' in packet_data['flags']:
-            src_ip = packet_data['src']
-            if src_ip not in self.syn_counter:
-                self.syn_counter[src_ip] = {'count': 0, 'last_seen': time.time()}
-            
-            self.syn_counter[src_ip]['count'] += 1
-            self.syn_counter[src_ip]['last_seen'] = time.time()
-            
-            if self.syn_counter[src_ip]['count'] > 50:
-                print(f"[DEBUG] High SYN count for {src_ip}: {self.syn_counter[src_ip]['count']}")
-                
-            if self.syn_counter[src_ip]['count'] > self.threshold:
-                print_with_timestamp(f"Potential SYN flood attack detected from {src_ip}!", RED)
-                del self.syn_counter[src_ip]  # reset
+        src_ip = packet_data.get('src')
+        flags = packet_data.get('flags', '')
+        #print_with_timestamp(f"[DEBUG] SYN Flood Detector received packet: {packet_data}", None)
+        #print_with_timestamp(f"[DEBUG] SYN Flood Detector checking packet with flags: {flags}", None)
+        
+        if 'S' in flags:
+            entry = self.syn_counter[src_ip]
+            entry['times'].append(time.time())
+            entry['count'] += 1
 
-        cleanup_tracker(self.syn_counter,60)
+            cleanup_tracker(self.syn_counter, 60)
+            #print_with_timestamp(f"[DEBUG] SYN Flood Detector updated entry for {src_ip}: {entry}", None)
+            
+            if entry['count'] > self.threshold:
+                print_with_timestamp(f"[ALERT] SYN flood attack detected from {src_ip}!", RED)
+                entry['times'].clear()
+                entry['count'] = 0

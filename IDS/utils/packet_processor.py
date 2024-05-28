@@ -1,13 +1,11 @@
 """
 Module for processing network packets and extracting relevant information.
 """
+from IDS.utils.common_utils import print_with_timestamp, cleanup_tracker, RED
 from scapy.layers.inet import IP, ICMP, TCP, UDP
 from scapy.layers.inet6 import IPv6
 
 def store_relevant_packet(packet):
-    """
-    Extract relevant data from a packet for further processing.
-    """
     packet_data = {
         "timestamp": packet.time,
         "payload_len": len(packet.original)
@@ -61,16 +59,20 @@ def process_packet(packet, detectors):
     Process each packet, extract relevant information and pass it to the detectors.
     """
     packet_data = store_relevant_packet(packet)
+    #print_with_timestamp(f"[DEBUG] Processing packet: {packet_data}", None)
 
     if packet_data.get('src') == '127.0.0.1' or packet_data.get('dst') == '127.0.0.1':
         return
 
     if "src" in packet_data and "dst" in packet_data:  # IP Packet
+        #print_with_timestamp(f"[DEBUG] Packet is an IP packet with src {packet_data['src']} and dst {packet_data['dst']}", None)
         detectors['brute_force'].detect(packet_data)
         
         if "sport" in packet_data and "dport" in packet_data:  # TCP or UDP Packet
+            #print_with_timestamp(f"[DEBUG] Packet is a TCP/UDP packet with sport {packet_data['sport']} and dport {packet_data['dport']}", None)
             detectors['port_scan'].detect(packet_data)
             detectors['syn_flood'].detect(packet_data)
 
-    elif "type" in packet_data:  # ICMP Packet
-        detectors['ping_sweep'].detect(packet_data)
+        if "type" in packet_data and packet_data["type"] == 8:  # ICMP Echo Request Packet
+            #print_with_timestamp(f"[DEBUG] Packet is an ICMP packet with type {packet_data['type']}", None)
+            detectors['ping_sweep'].detect(packet_data)

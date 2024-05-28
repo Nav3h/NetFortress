@@ -1,35 +1,40 @@
 """
 Module for detecting ping sweep scans in network traffic.
 """
-from collections import defaultdict
 import time
-from IDS.utils.common_utils import print_with_timestamp, cleanup_tracker, RED
 from IDS.detectors.attack_detector import AttackDetector
+from collections import deque, defaultdict
+from IDS.utils.common_utils import print_with_timestamp, cleanup_tracker, RED
+import datetime
 
-class PingSweepDetector(AttackDetector):
-    """
-    A class for detecting ping sweep scans.
-    """
+
+class PingSweepDetector:
     def __init__(self, threshold):
         self.threshold = threshold
-        self.icmp_tracker = defaultdict(lambda: {"count": 0, "last_seen": 0})
+        self.icmp_requests = {}
+        #print(f"[DEBUG] PingSweepDetector initialized with threshold: {self.threshold}")
 
     def detect(self, packet):
-        """Detect potential port scanning activity in the given packet."""
-        src = packet.get('src')
-        packet_type = packet.get('type')
+        src_ip = packet.get('src')
+        dst_ip = packet.get('dst')
+        icmp_type = packet.get('type')
+        #print(f"[DEBUG] PingSweepDetector.detect called with packet: src_ip={src_ip}, dst_ip={dst_ip}, icmp_type={icmp_type}")
 
-        if not src or packet_type is None:
-            return       
-             
-        if packet_type == 8:  # ICMP Req
-            if src not in self.icmp_tracker:
-                self.icmp_tracker[src] = {'count': 0, 'last_seen': time.time()}                
-            self.icmp_tracker[src]['count'] += 1
+        if icmp_type == 8:  # Echo request (ping)
+            #print(f"[DEBUG] Detected ICMP type 8 (echo request) from {src_ip} to {dst_ip}")
+            if src_ip not in self.icmp_requests:
+                self.icmp_requests[src_ip] = []
+            self.icmp_requests[src_ip].append(datetime.datetime.now())
+            self._check_for_sweep(src_ip)
 
-            self.icmp_tracker[src]['last_seen'] = time.time()
-            if self.icmp_tracker[src]['count'] > self.threshold:
-                print_with_timestamp(f"Suspicious ping sweep detected from {src}", RED)
-                del self.icmp_tracker[src]  
+    def _check_for_sweep(self, src_ip):
+        current_time = datetime.datetime.now()
+        self.icmp_requests[src_ip] = [timestamp for timestamp in self.icmp_requests[src_ip] if (current_time - timestamp).seconds <= 1]
+        #print(f"[DEBUG] Current ICMP requests for {src_ip}: {self.icmp_requests[src_ip]}")
 
-        cleanup_tracker(self.icmp_tracker, 60)
+        if len(self.icmp_requests[src_ip]) > self.threshold:
+            self._alert(src_ip)
+
+    def _alert(self, src_ip):
+        print(f"[ALERT] Ping sweep detected from {src_ip}!")
+
