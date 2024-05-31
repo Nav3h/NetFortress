@@ -72,7 +72,3 @@ def process_packet(packet, detectors):
             #print_with_timestamp(f"[DEBUG] Packet is a TCP/UDP packet with sport {packet_data['sport']} and dport {packet_data['dport']}", None)
             detectors['port_scan'].detect(packet_data)
             detectors['syn_flood'].detect(packet_data)
-
-        if "type" in packet_data and packet_data["type"] == 8:  # ICMP Echo Request Packet
-            #print_with_timestamp(f"[DEBUG] Packet is an ICMP packet with type {packet_data['type']}", None)
-            detectors['ping_sweep'].detect(packet_data)

@@ -18,6 +18,7 @@ env/
 *.user
 *.suo
 *.lock.json
+*.db
 
 /doc/
 docs/

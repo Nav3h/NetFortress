@@ -1,45 +1,39 @@
 """
 Module for detecting brute force attacks in network traffic.
 """
-import time
-from collections import defaultdict
+
 from IDS.utils.common_utils import print_with_timestamp, cleanup_tracker, RED
 from IDS.detectors.attack_detector import AttackDetector
-from collections import deque
+from IDS.utils.db_manager import create_connection, insert_detection, hash_detection
 import time
+from collections import defaultdict
 
 class BruteForceDetector(AttackDetector):
-    def __init__(self, threshold=50):  # Adding default threshold
+    def __init__(self, threshold):
         super().__init__(threshold)
-        self.attempts = defaultdict(lambda: {'count': 0, 'times': deque(), 'last_seen': None})
-        #print_with_timestamp("[DEBUG] Brute Force Detector initialized", None)
-
+        self.failed_attempts = defaultdict(int)
+    
     def detect(self, packet_data):
-        #print_with_timestamp(f"[DEBUG] Brute Force Detector received packet: {packet_data}", None)
-        src_ip = packet_data.get('src')
-        dst_ip = packet_data.get('dst')
-        dst_port = packet_data.get('dport')
-        timestamp = packet_data.get('timestamp')
+        conn = create_connection("ids_database.db")
+        src = packet_data.get('src')
+        dst = packet_data.get('dst')
+        port = packet_data.get('dport')
 
-        if src_ip and dst_ip and dst_port:
-            key = (dst_ip, dst_port)
-            entry = self.attempts[key]
-            entry['count'] += 1
-            entry['times'].append(timestamp)
-            entry['last_seen'] = timestamp
-            #print_with_timestamp(f"[DEBUG] Brute Force Detector updated entry for {key}: {entry}", None)
+        if not src or not dst or not port:
+            return
 
-            # Perform cleanup
-            self.cleanup(key, entry)
-
-            # Detect brute force
-            if entry['count'] > self.threshold:
-                print_with_timestamp(f"[ALERT] Brute force attack detected on {dst_ip}:{dst_port} from {src_ip}!", RED)
-
-    def cleanup(self, key, entry):
-        current_time = time.time()
-        while entry['times'] and current_time - entry['times'][0] > 60:  # Cleanup threshold
-            entry['times'].popleft()
-            entry['count'] -= 1
-        #print_with_timestamp(f"[DEBUG] Brute Force Detector after cleanup for {key}: {entry}", None)
-
+        key = (src, dst, port)
+        if packet_data.get('status') == 'failed':
+            self.failed_attempts[key] += 1
+            print_with_timestamp(f"[DEBUG] BruteForceDetector: {key} has {self.failed_attempts[key]} failed attempts", None)
+            
+            if self.failed_attempts[key] >= self.threshold:
+                timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+                detection = ("brute_force", src, dst, timestamp, hash_detection([src, dst, timestamp]))
+                insert_detection(conn, detection)
+                print_with_timestamp(f"[ALERT] Brute force attack detected from {src} to {dst} on port {port}!", RED)
+                self.failed_attempts[key] = 0
+        elif packet_data.get('status') == 'success':
+            if key in self.failed_attempts:
+                del self.failed_attempts[key]
+        conn.close()
