@@ -2,38 +2,45 @@
 Module for detecting brute force attacks in network traffic.
 """
 
-from IDS.utils.common_utils import print_with_timestamp, cleanup_tracker, RED
-from IDS.detectors.attack_detector import AttackDetector
-from IDS.utils.db_manager import create_connection, insert_detection, hash_detection
 import time
-from collections import defaultdict
+from collections import defaultdict, deque
+from IDS.utils.common_utils import print_with_timestamp, RED
+from IDS.utils.db_manager import create_connection, insert_detection, hash_detection
+from IDS.detectors.attack_detector import AttackDetector
+
+TIME_WINDOW = 60
 
 class BruteForceDetector(AttackDetector):
     def __init__(self, threshold):
-        super().__init__(threshold)
-        self.failed_attempts = defaultdict(int)
-    
+        super().__init__(threshold)  # Initialize the base class with the threshold
+        self.brute_force_tracker = defaultdict(lambda: {'count': 0, 'times': deque()})
+
     def detect(self, packet_data):
-        conn = create_connection("ids_database.db")
-        src = packet_data.get('src')
-        dst = packet_data.get('dst')
-        port = packet_data.get('dport')
+        conn = create_connection("ids_database.db")  # Create database connection
+        dst_ip = packet_data.get('dst')
+        dst_port = packet_data.get('dport')
+        current_time = time.time()
 
-        if not src or not dst or not port:
-            return
+        if not dst_ip or not dst_port:
+            conn.close()
+            return  # Skip detection if key information is missing
 
-        key = (src, dst, port)
-        if packet_data.get('status') == 'failed':
-            self.failed_attempts[key] += 1
-            print_with_timestamp(f"[DEBUG] BruteForceDetector: {key} has {self.failed_attempts[key]} failed attempts", None)
-            
-            if self.failed_attempts[key] >= self.threshold:
-                timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-                detection = ("brute_force", src, dst, timestamp, hash_detection([src, dst, timestamp]))
-                insert_detection(conn, detection)
-                print_with_timestamp(f"[ALERT] Brute force attack detected from {src} to {dst} on port {port}!", RED)
-                self.failed_attempts[key] = 0
-        elif packet_data.get('status') == 'success':
-            if key in self.failed_attempts:
-                del self.failed_attempts[key]
+        ip_port_key = (dst_ip, str(dst_port))  # Ensure port is a string
+
+        tracker = self.brute_force_tracker[ip_port_key]
+        tracker['count'] += 1
+        tracker['times'].append(current_time)
+
+        while tracker['times'] and current_time - tracker['times'][0] > TIME_WINDOW:
+            tracker['times'].popleft()
+            tracker['count'] -= 1
+
+        if tracker['count'] > self.threshold:
+            timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+            detection = ("brute_force", dst_ip, str(dst_port), timestamp, hash_detection([dst_ip, str(dst_port), timestamp]))
+            insert_detection(conn, detection)
+            print_with_timestamp(f"[ALERT] Brute force detected on {dst_ip}:{dst_port}", RED)
+            tracker['times'].clear()
+            tracker['count'] = 0
         conn.close()
+

@@ -6,11 +6,6 @@ import time
 from IDS.detectors.attack_detector import AttackDetector
 from collections import deque, defaultdict
 from IDS.utils.common_utils import print_with_timestamp, cleanup_tracker, RED
-
-import time
-from IDS.detectors.attack_detector import AttackDetector
-from collections import deque, defaultdict
-from IDS.utils.common_utils import print_with_timestamp, cleanup_tracker, RED
 from IDS.utils.db_manager import create_connection, insert_detection, hash_detection
 
 class PortScanDetector(AttackDetector):
@@ -30,7 +25,7 @@ class PortScanDetector(AttackDetector):
         entry['ports'].add(dport)
         entry['times'].append(time.time())
 
-        cleanup_tracker(self.port_scan_tracker, 60)
+        cleanup_tracker(self.port_scan_tracker, 30)
 
         if len(entry['ports']) > self.threshold:
             timestamp = time.strftime('%Y-%m-%d %H:%M:%S')

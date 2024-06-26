@@ -15,22 +15,21 @@ def simulate_port_scan(target_ip):
     for port in ports:
         packet = IP(dst=target_ip)/TCP(dport=port, flags="S")
         send(packet, verbose=False)
-    print(f"[{time.ctime()}] Port scan simulation completed on {target_ip}.")
+
 
 def simulate_syn_flood(target_ip, target_port):
     """Simulates a SYN flood attack."""
     for i in range(4000):  
         packet = IP(dst=target_ip)/TCP(dport=target_port, flags="S")
         send(packet, verbose=False)
-    print(f"[{time.ctime()}] SYN flood simulation completed on {target_ip}:{target_port}.")
 
-def simulate_brute_force(target_ip, target_port, num_attempts=10000):
+
+def simulate_brute_force(target_ip, target_port):
     """Simulates a brute force attack."""
-    for i in range(num_attempts):
+    for i in range(10000):
         password = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=8))
         packet = IP(dst=target_ip)/TCP(dport=target_port)/password
         send(packet, verbose=False)
-    print(f"[{time.ctime()}] Brute force simulation completed on {target_ip}:{target_port}.")
 
 def simulate_suspicious_activity():
     """Simulates various types of network attacks."""
@@ -41,6 +40,7 @@ def simulate_suspicious_activity():
     simulate_port_scan(my_ip)
     simulate_syn_flood(my_ip, target_port)
     simulate_brute_force(my_ip, target_port)
+
 
 if __name__ == "__main__":
     simulate_suspicious_activity()

@@ -22,7 +22,7 @@ class SynFloodDetector(AttackDetector):
             entry['times'].append(time.time())
             entry['count'] += 1
 
-            cleanup_tracker(self.syn_counter, 60)
+            cleanup_tracker(self.syn_counter, 10)
             
             if entry['count'] > self.threshold:
                 timestamp = time.strftime('%Y-%m-%d %H:%M:%S')

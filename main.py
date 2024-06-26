@@ -11,7 +11,7 @@ def network_monitor(detectors, interface="\\Device\\NPF_Loopback"):
     """
     Monitors network traffic and processes packets.
     """
-    print("Monitoring network traffic started")
+    print("[+] Monitoring network traffic started")
     try:
         sniff(iface=interface, filter="ip", prn=lambda x: process_packet(x, detectors))
     except Exception as e:
@@ -23,9 +23,9 @@ if __name__ == "__main__":
     conn = create_connection("ids_database.db")
     create_table(conn)
 
-    syn_flood_detector = DetectorFactory.create_detector("syn_flood", 2500)
-    brute_force_detector = DetectorFactory.create_detector("brute_force", 8000)
-    port_scan_detector = DetectorFactory.create_detector("port_scan", 1500)
+    syn_flood_detector = DetectorFactory.create_detector("syn_flood", 2055)
+    brute_force_detector = DetectorFactory.create_detector("brute_force", 6225)
+    port_scan_detector = DetectorFactory.create_detector("port_scan", 6050)
 
     detectors = {
         "syn_flood": syn_flood_detector,
