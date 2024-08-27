@@ -1,7 +1,6 @@
 from IDS.detectors.detector_factory import DetectorFactory
 from IDS.utils.packet_processor import process_packet
 from IDS.utils.db_manager import create_connection, create_table
-from IDS.utils.socket_server import start_socket_server
 from IDS.utils.gui import start_gui
 import threading
 from scapy.all import sniff
@@ -34,10 +33,7 @@ if __name__ == "__main__":
     }
 
     gui_thread = threading.Thread(target=start_gui, args=(detectors, network_monitor))
-    socket_thread = threading.Thread(target=start_socket_server, args=(detectors,))
 
     gui_thread.start()
-    socket_thread.start()
 
     gui_thread.join()
-    socket_thread.join()

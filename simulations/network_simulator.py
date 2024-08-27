@@ -33,7 +33,7 @@ def simulate_brute_force(target_ip, target_port):
 
 def simulate_suspicious_activity():
     """Simulates various types of network attacks."""
-    my_ip = "192.168.56.1"
+    my_ip = "192.168.1.22"
     target_port = 22
 
     #simulate_ping_sweep(target_ip_prefix)
