@@ -6,9 +6,12 @@ import threading
 from scapy.all import sniff
 import logging
 
-def network_monitor(detectors, interface="\\Device\\NPF_Loopback"):
+def network_monitor(detectors, interface="\\Device\\NPF_Loopback"): # 
     """
     Monitors network traffic and processes packets.
+
+    Currently set to use the loopback interface for testing purposes. 
+    Update the 'interface' parameter as needed to monitor traffic on a different network interface.
     """
     print("[+] Monitoring network traffic started")
     try:

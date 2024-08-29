@@ -32,11 +32,14 @@ def simulate_brute_force(target_ip, target_port):
         send(packet, verbose=False)
 
 def simulate_suspicious_activity():
-    """Simulates various types of network attacks."""
+    """ 
+    Simulates various types of network attacks.
+    The 'my_ip' variable is currently set to '192.168.1.22' for testing purposes.
+    Update 'my_ip' as needed to target the appropriate network device or IP address.
+    """
     my_ip = "192.168.1.22"
     target_port = 22
 
-    #simulate_ping_sweep(target_ip_prefix)
     simulate_port_scan(my_ip)
     simulate_syn_flood(my_ip, target_port)
     simulate_brute_force(my_ip, target_port)
